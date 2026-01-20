@@ -1,0 +1,34 @@
+{
+  "typescript.validate.enable": true,
+  "typescript.preferences.includePackageJsonAutoImports": "off",
+  "typescript.suggest.autoImports": true,
+  "typescript.tsserver.experimental.enableProjectDiagnostics": false,
+  "typescript.tsserver.maxTsServerMemory": 4096,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.preferences.excludePackageJson": true,
+  "typescript.disableAutomaticTypeAcquisition": false,
+  "files.exclude": {
+    "**/node_modules": false
+  },
+  "files.watcherExclude": {
+    "**/node_modules/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/node_modules/**": true
+  },
+  "javascript.validate.enable": true,
+  "editor.formatOnSave": false,
+  "problems.showCurrentInStatus": true,
+  "files.associations": {
+    "*.ts": "typescript",
+    "*.tsx": "typescriptreact",
+    "*.js": "javascript"
+  },
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "*.ts": "${capture}.js, ${capture}.d.ts, ${capture}.js.map",
+    "tsconfig.json": "tsconfig.*.json"
+  }
+}

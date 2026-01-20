@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guacamole Desktop - Conexiones Remotas</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo-icon">🖥️</div>
+                    <div>
+                        <h1>Guacamole Desktop</h1>
+                        <p class="subtitle">Conexiones remotas RDP, VNC y SSH</p>
+                    </div>
+                </div>
+                <div class="status-indicator" id="statusIndicator">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusText">Verificando...</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Control Panel -->
+            <section class="control-panel">
+                <div class="panel-card">
+                    <h2>Control de Infraestructura</h2>
+                    <div class="button-group">
+                        <button id="startBtn" class="btn btn-primary">
+                            <span class="btn-icon">▶️</span>
+                            <span>Iniciar Servicios</span>
+                        </button>
+                        <button id="stopBtn" class="btn btn-secondary">
+                            <span class="btn-icon">⏹️</span>
+                            <span>Detener Servicios</span>
+                        </button>
+                        <button id="refreshBtn" class="btn btn-outline">
+                            <span class="btn-icon">🔄</span>
+                            <span>Actualizar Estado</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Status Cards -->
+                <div class="status-grid">
+                    <div class="status-card">
+                        <div class="status-card-header">
+                            <span class="status-card-icon">🐳</span>
+                            <h3>Docker</h3>
+                        </div>
+                        <div class="status-card-body">
+                            <div id="dockerStatus" class="status-value">Verificando...</div>
+                        </div>
+                    </div>
+
+                    <div class="status-card">
+                        <div class="status-card-header">
+                            <span class="status-card-icon">🗄️</span>
+                            <h3>PostgreSQL</h3>
+                        </div>
+                        <div class="status-card-body">
+                            <div id="postgresStatus" class="status-value">-</div>
+                        </div>
+                    </div>
+
+                    <div class="status-card">
+                        <div class="status-card-header">
+                            <span class="status-card-icon">🔌</span>
+                            <h3>Guacd</h3>
+                        </div>
+                        <div class="status-card-body">
+                            <div id="guacdStatus" class="status-value">-</div>
+                        </div>
+                    </div>
+
+                    <div class="status-card">
+                        <div class="status-card-header">
+                            <span class="status-card-icon">🌐</span>
+                            <h3>Guacamole Web</h3>
+                        </div>
+                        <div class="status-card-body">
+                            <div id="guacamoleStatus" class="status-value">-</div>
+                            <button id="openGuacamoleBtn" class="btn btn-small" style="display: none;">
+                                Abrir Interfaz
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Containers Status -->
+            <section class="containers-section">
+                <div class="panel-card">
+                    <h2>Contenedores Disponibles</h2>
+                    <div id="containersList" class="containers-grid">
+                        <!-- Containers will be dynamically loaded here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Connection Targets -->
+            <section class="targets-section">
+                <div class="panel-card">
+                    <h2>Destinos de Conexión</h2>
+                    <div class="targets-grid">
+                        <div class="target-card">
+                            <div class="target-icon">🪟</div>
+                            <h3>Windows RDP</h3>
+                            <p class="target-description">Servidor Windows 11 para conexiones RDP</p>
+                            <div class="target-info">
+                                <div class="info-item">
+                                    <span class="info-label">Puerto:</span>
+                                    <span class="info-value">3389</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Usuario:</span>
+                                    <span class="info-value">Administrator</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Contraseña:</span>
+                                    <span class="info-value">Windows123!</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-block" onclick="openConnection('windows')">
+                                Conectar a Windows RDP
+                            </button>
+                            <button class="btn btn-outline btn-block" style="margin-top: 0.5rem;" onclick="showConnectionInfo('rdp')">
+                                Ver Detalles
+                            </button>
+                        </div>
+
+                        <div class="target-card">
+                            <div class="target-icon">🐧</div>
+                            <h3>Ubuntu VNC</h3>
+                            <p class="target-description">Escritorio Ubuntu con VNC habilitado</p>
+                            <div class="target-info">
+                                <div class="info-item">
+                                    <span class="info-label">Puerto:</span>
+                                    <span class="info-value">5900</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Contraseña:</span>
+                                    <span class="info-value">Ubuntu123!</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Resolución:</span>
+                                    <span class="info-value">1920x1080</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-block" onclick="openConnection('ubuntu-vnc')">
+                                Conectar a Ubuntu VNC
+                            </button>
+                            <button class="btn btn-outline btn-block" style="margin-top: 0.5rem;" onclick="showConnectionInfo('vnc')">
+                                Ver Detalles
+                            </button>
+                        </div>
+
+                        <div class="target-card">
+                            <div class="target-icon">💻</div>
+                            <h3>Ubuntu SSH</h3>
+                            <p class="target-description">Servidor SSH Ubuntu para conexiones remotas</p>
+                            <div class="target-info">
+                                <div class="info-item">
+                                    <span class="info-label">Puerto:</span>
+                                    <span class="info-value">2222</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Usuario:</span>
+                                    <span class="info-value">sshuser</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Contraseña:</span>
+                                    <span class="info-value">Ubuntu123!</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary btn-block" onclick="openConnection('ubuntu-ssh')">
+                                Conectar a Ubuntu SSH
+                            </button>
+                            <button class="btn btn-outline btn-block" style="margin-top: 0.5rem;" onclick="showConnectionInfo('ssh')">
+                                Ver Detalles
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Logs Section -->
+            <section class="logs-section">
+                <div class="panel-card">
+                    <h2>Registro de Actividad</h2>
+                    <div id="logsContainer" class="logs-container">
+                        <div class="log-entry info">
+                            <span class="log-time">[Inicio]</span>
+                            <span class="log-message">Aplicación iniciada. Esperando conexión...</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Connection Info Modal -->
+    <div id="connectionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Información de Conexión</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Connection details will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Hacer disponible openConnection globalmente
+        window.openConnection = async function(connectionId) {
+            try {
+                addLog('info', `Abriendo conexión: ${connectionId}...`);
+                const result = await window.electronAPI.openConnection(connectionId);
+                
+                if (result.success) {
+                    addLog('success', `Conexión ${connectionId} abierta correctamente`);
+                } else {
+                    addLog('error', `Error abriendo conexión: ${result.error || 'Error desconocido'}`);
+                }
+            } catch (error) {
+                addLog('error', `Error al abrir conexión: ${error.message}`);
+            }
+        };
+    </script>
+</body>
+</html>
