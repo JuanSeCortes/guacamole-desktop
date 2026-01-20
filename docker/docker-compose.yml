@@ -1,0 +1,113 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: guacamole-postgres
+    environment:
+      POSTGRES_DB: guacamole_db
+      POSTGRES_USER: guacamole_user
+      POSTGRES_PASSWORD: guacamole_pass
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+      - ./initdb.sql:/docker-entrypoint-initdb.d/initdb.sql
+    networks:
+      - guacamole-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U guacamole_user -d guacamole_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  guacd:
+    image: guacamole/guacd:latest
+    container_name: guacamole-guacd
+    networks:
+      - guacamole-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pidof", "guacd"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  guacamole:
+    image: guacamole/guacamole:latest
+    container_name: guacamole-client
+    environment:
+      GUACD_HOSTNAME: guacd
+      GUACD_PORT: 4822
+      POSTGRES_HOSTNAME: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DATABASE: guacamole_db
+      POSTGRES_USER: guacamole_user
+      POSTGRES_PASSWORD: guacamole_pass
+    ports:
+      - "8080:8080"
+    networks:
+      - guacamole-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      guacd:
+        condition: service_healthy
+    restart: unless-stopped
+
+  windows-rdp:
+    image: dockurr/windows:latest
+    container_name: windows-rdp-target
+    environment:
+      VERSION: "win11"
+      USERNAME: "Administrator"
+      PASSWORD: "Windows123!"
+    ports:
+      - "3389:3389"
+    volumes:
+      - ./data/windows:/storage
+    networks:
+      - guacamole-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2'
+
+  ubuntu-vnc:
+    image: dorowu/ubuntu-desktop-lxde-vnc:latest
+    container_name: ubuntu-vnc-target
+    environment:
+      VNC_PASSWORD: Ubuntu123!
+      RESOLUTION: 1920x1080
+    ports:
+      - "5900:5900"
+      - "6080:80"
+    networks:
+      - guacamole-network
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+
+  ubuntu-ssh:
+    image: ubuntu:22.04
+    container_name: ubuntu-ssh-target
+    command: >
+      bash -c "apt-get update &&
+      apt-get install -y openssh-server sudo &&
+      useradd -m -s /bin/bash sshuser &&
+      echo 'sshuser:Ubuntu123!' | chpasswd &&
+      usermod -aG sudo sshuser &&
+      mkdir -p /var/run/sshd &&
+      /usr/sbin/sshd -D"
+    ports:
+      - "2222:22"
+    networks:
+      - guacamole-network
+    restart: unless-stopped
+
+networks:
+  guacamole-network:
+    driver: bridge
